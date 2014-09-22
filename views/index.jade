@@ -1,0 +1,24 @@
+extends layout
+
+block body
+
+  #welcome.jumbotron
+    h1 Komon
+    p.lead.
+      <br/>
+      <br/>
+      Welcome to Komon ! With Komon, you can :
+    ul
+      li Manage your expenses in a very fun and simple way
+      li Check your stats in real time based on various criteria
+    <br/>
+    <br/>
+    h2 How to use Komon
+    br
+    p.
+      Simply register with an email adress and a password, Komon is 100% free !
+    p.
+      Aren't a Komon user yet?
+      <a href="/register">Go signup now!</a>
+    p.bigbutton
+      a.bigbutton.btn.btn-lg.btn-danger(href='/register', role='button') Register
