@@ -17,6 +17,7 @@ router.get('/dashboard', function (req, res) {
   var db = req.db;
   var usercollection = db.collection('usercollection');
   
+  //Update test
   usercollection.update({email:  req.user.email} , {$set:{year:2000}}, function(err, result) {
     if (!err) console.log('Year updated!');
     

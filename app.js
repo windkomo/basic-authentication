@@ -10,9 +10,13 @@ var mongo = require('mongoskin');
 var db = mongo.db("mongodb://localhost:27017/test", {native_parser:true});
 
 // These are the new imports we're adding:
+var stormpath = require('express-stormpath');
 var passport = require('passport');
 var StormpathStrategy = require('passport-stormpath');
+
 var session = require('express-session');
+var mongoStore = require('connect-mongo')(session); // note parameter = session
+
 var flash = require('connect-flash');
 
 var indexRoutes = require('./routes/index');
@@ -25,6 +29,7 @@ app.use(cookieParser());
 
 app.use(expressSession({
     secret:'somesecrettokenhere',
+     maxAge: new Date(Date.now() + 3600000),
     proxy: true,
     resave: true,
     saveUninitialized: true
@@ -50,18 +55,32 @@ app.use(cookieParser());
 app.use(require('stylus').middleware(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Stuff we're adding:
-app.use(session({
-  secret: process.env.EXPRESS_SECRET,
-  key: 'sid',
+//Sotrmpath middleware for persistent sessions
+
+var sessionMiddleware = session({
+  store: new mongoStore(
+        {db:db}),
+    secret: process.env.EXPRESS_SECRET,
+       maxAge: new Date(Date.now() + 3600000),
+         key: 'sid',
   cookie: {secure: false},
   proxy: true,
   resave: true,
   saveUninitialized: true
-}));
+});
+
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
+
+//Add custom middleware
+app.use(sessionMiddleware);
+
+app.use(stormpath.init(app, {
+  sessionMiddleware: sessionMiddleware,
+    application:  process.env['STORMPATH_APP_HREF'],
+    secretKey: process.env.EXPRESS_SECRET
+}));
 
 // Make our db accessible to our router
 app.use(function(req,res,next){
